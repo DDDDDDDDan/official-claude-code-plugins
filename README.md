@@ -16,7 +16,7 @@
 
 1. 添加此插件市场：
 ```bash
-/plugin marketplace add DDDDDDDan/official-claude-code-plugins
+/plugin marketplace add DDDDDDDDan/official-claude-code-plugins
 ```
 
 2. 浏览可用的官方插件：
