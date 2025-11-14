@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-plugins:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Validate plugin structure
+      run: |
+        # 检查每个插件的基本结构
+        for plugin in plugins/*/; do
+          if [ -d "$plugin" ]; then
+            plugin_name=$(basename "$plugin")
+            echo "Validating plugin: $plugin_name"
+
+            # 检查必需的文件
+            if [ ! -f "$plugin/.claude-plugin/plugin.json" ]; then
+              echo "Error: Missing .claude-plugin/plugin.json for $plugin_name"
+              exit 1
+            fi
+
+            # 验证JSON格式
+            if ! python -m json.tool "$plugin/.claude-plugin/plugin.json" > /dev/null; then
+              echo "Error: Invalid JSON in $plugin_name/.claude-plugin/plugin.json"
+              exit 1
+            fi
+          fi
+        done
+
+    - name: Validate marketplace.json
+      run: |
+        if [ -f ".claude-plugin/marketplace.json" ]; then
+          if ! python -m json.tool ".claude-plugin/marketplace.json" > /dev/null; then
+            echo "Error: Invalid JSON in .claude-plugin/marketplace.json"
+            exit 1
+          fi
+        fi
